@@ -269,6 +269,10 @@ module.exports = function (grunt) {
         singleRun: true
       }
     },
+    jasmine: {
+      src: 'src/**/*.js',
+      specs: 'test/spec/**/*spec.js'
+    },
     cdnify: {
       dist: {
         html: ['<%= yeoman.dist %>/*.html']
