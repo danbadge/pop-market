@@ -19,23 +19,23 @@ angular.module('popMarketApp')
 		};
 
 		Stock.prototype.buy = function () {
-			if (this.availability < 1) { return; }
+			this.availability -= 10;
 
-			this.availability -= 1;
-
-			this.updatePrice();
+			this.increasePrice();
 		};
 
 		Stock.prototype.sell = function () {
-			if (this.availability > 999) { return; }
-			
-			this.availability += 1;
+			this.availability += 10;
 
-			this.updatePrice();
+			this.decreasePrice();
 		};
 
-		Stock.prototype.updatePrice = function () {
-			this.price = randomisePriceWeightedTowards(this.chartPosition);
+		Stock.prototype.increasePrice = function () {
+			this.updatePriceBasedOn(1);
+		};
+
+		Stock.prototype.decreasePrice = function () {
+			this.updatePriceBasedOn(-1);
 		};
 
 		function randomisePriceWeightedTowards(chartPosition) {
@@ -44,9 +44,32 @@ angular.module('popMarketApp')
 			return (Math.random() * (max - chartPosition)) + min;
 		}
 
+		Stock.prototype.updatePriceBasedOn = function(direction) {
+			if ((this.availability % 40) !== 0) { return; }
+
+			var ratio = 0.0001 * this.availability + 0.0005 * (this.totalShares - this.availability);
+			this.price += 0.001 * this.price + direction * ratio * this.price;
+			this.formattedPrice = '£' + this.price.toFixed(2);
+		};
+
 		return(Stock);
 	})
-	.controller('RetreiveArtistStocks', function($scope, Stock) {
+	.factory('UserService', function($rootScope) {
+		$rootScope.balance = 1000.00;
+		$rootScope.formattedBalance = '£' + $rootScope.balance.toFixed(2);
+
+		return {
+			spent: function(amount) {
+				$rootScope.balance -= amount;
+				$rootScope.formattedBalance = '£' + $rootScope.balance.toFixed(2);
+			},
+			sold: function(amount) {
+				$rootScope.balance += amount;
+				$rootScope.formattedBalance = '£' + $rootScope.balance.toFixed(2);
+			}
+		};
+	})
+	.controller('RetreiveArtistStocks', function($scope, Stock, UserService) {
 		$scope.artists = [
 			{ 'chartPosition': 1, 'name' : 'John Newman', 'stock' : new Stock(1) },
 			{ 'chartPosition': 2, 'name' : 'Reconnected', 'stock' : new Stock(2) },
@@ -61,15 +84,18 @@ angular.module('popMarketApp')
 		];
 
 		$scope.buy = function (artist) {
+			if (artist.stock.availability === 1) { return; }
+
 			artist.stock = new Stock(artist.stock.chartPosition).from(artist.stock);
 			artist.stock.buy();
+			UserService.spent(artist.stock.price);
 		};
 
 		$scope.sell = function (artist) {
+			if (artist.stock.availability > 999) { return; }
+
 			artist.stock = new Stock(artist.stock.chartPosition).from(artist.stock);
 			artist.stock.sell();
+			UserService.sold(artist.stock.price);
 		};
-	})
-	.controller('User', function ($scope) {
-		$scope.formattedBalance = '£1000.00';
 	});
