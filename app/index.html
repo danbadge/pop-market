@@ -27,7 +27,17 @@
     <![endif]-->
 
     <!-- Add your site or application content here -->
-    <div class="container" ng-view=""></div>
+    <div class="container">
+      <header class="page-header" ng-controller="User">
+          <div class="row-fluid">
+            <h1 class="span10">Pop Market</h1>
+            <div class="span2" style="margin-top: 28px; color: #999999;">
+              <small class="text-right">Balance: {{formattedBalance}}</small>
+            </div>
+          </div>
+      </header>
+      <div ng-view></div>
+    </div>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
      <script>
@@ -69,5 +79,7 @@
         <script src="scripts/app.js"></script>
         <script src="scripts/controllers/main.js"></script>
         <!-- endbuild -->
+
+        <script src="bower_components/angular-bootstrap/ui-bootstrap.js"></script>
 </body>
 </html>

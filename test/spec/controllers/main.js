@@ -4,6 +4,7 @@ describe('Controller: MainCtrl', function () {
 
   // load the controller's module
   beforeEach(module('popMarketApp'));
+  beforeEach(module('ui.bootstrap'));
 
   var MainCtrl,
     scope;
